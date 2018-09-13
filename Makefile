@@ -138,6 +138,14 @@ USE_SDL2 = 1
     HAVE_NEON = 1
     NAME  = amiberry-vero4k
 
+else ifeq ($(PLATFORM),sun8i)
+USE_SDL2 = 1
+    CPU_FLAGS += -march=armv7-a -mtune=cortex-a7 -mfpu=neon-vfpv4
+    CFLAGS += -I/opt/sun8i/include -DARMV6T2 -DUSE_ARMNEON -DARM_HAS_DIV -DUSE_SDL2 -DMALI_GPU -DUSE_RENDER_THREAD -DTINKER
+    LDFLAGS += -L/opt/sun8i/lib
+    HAVE_NEON = 1
+    NAME  = amiberry-sun8i
+
 else ifeq ($(PLATFORM),tinker)
 USE_SDL2 = 1
     CPU_FLAGS += -march=armv7-a -mtune=cortex-a17 -mfpu=neon-vfpv4
