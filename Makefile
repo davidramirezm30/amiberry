@@ -98,13 +98,17 @@ USE_SDL2 = 1
     CFLAGS += -DUSE_SDL2
     NAME  = amiberry-rpi1-sdl2
 
-else ifeq ($(PLATFORM),pine64)
+else ifeq ($(PLATFORM),orangepi-pc)
 USE_SDL2 = 1
-    CPU_FLAGS += -march=armv7-a -mfpu=vfpv3-d16
-    CFLAGS += -DARMV6T2 -D__arm__ -DARM_HAS_DIV -DUSE_SDL2
-    CC = arm-linux-gnueabihf-gcc
-    CXX = arm-linux-gnueabihf-g++
-    NAME  = amiberry-pine64
+    CPU_FLAGS += -march=armv7-a -mtune=cortex-a7 -mfpu=neon-vfpv4
+    CFLAGS += -DARMV6T2 -DUSE_ARMNEON -DARM_HAS_DIV -DUSE_SDL2 -DMALI_GPU -DUSE_RENDER_THREAD
+    HAVE_NEON = 1
+    NAME  = amiberry-orangepi-pc
+    ifdef DEBUG
+	    # Otherwise we'll get compilation errors, check https://tls.mbed.org/kb/development/arm-thumb-error-r7-cannot-be-used-in-asm-here
+	    # quote: The assembly code in bn_mul.h is optimized for the ARM platform and uses some registers, including r7 to efficiently do an operation. GCC also uses r7 as the frame pointer under ARM Thumb assembly.
+        MORE_CFLAGS += -fomit-frame-pointer
+    endif
 
 else ifeq ($(PLATFORM),xu4)
 USE_SDL2 = 1
@@ -199,7 +203,7 @@ DEFS += `xml2-config --cflags`
 DEFS += -DAMIBERRY -DARMV6_ASSEMBLY
 
 ifndef DEBUG
-    CFLAGS += -std=gnu++14 -Ofast -frename-registers
+    CFLAGS += -std=gnu++14 -Ofast -frename-registers -falign-functions=16
 else
     CFLAGS += -std=gnu++14 -g -rdynamic -funwind-tables -mapcs-frame -DDEBUG -Wl,--export-dynamic
 endif
@@ -230,7 +234,7 @@ endif
 
 LDFLAGS += -lpthread -lz -lpng -lrt -lxml2 -lFLAC -lmpg123 -ldl -lmpeg2convert -lmpeg2
 
-ASFLAGS += $(CPU_FLAGS)
+ASFLAGS += $(CPU_FLAGS) -falign-functions=16
 
 export CFLAGS += $(SDL_CFLAGS) $(CPU_FLAGS) $(DEFS) $(EXTRA_CFLAGS) -DGCCCONSTFUNC="__attribute__((const))" -pipe -Wno-shift-overflow -Wno-narrowing
 export CXXFLAGS += $(CFLAGS)
