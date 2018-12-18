@@ -92,7 +92,7 @@ For the Vero 4k (SDL2):
      
 For the OrangePi PC (SDL2):
 
-      make all PLATFORM=orancepi-pc
+      make all PLATFORM=orangepi-pc
       
 You can check the Makefile for a full list of supported platforms!
 
